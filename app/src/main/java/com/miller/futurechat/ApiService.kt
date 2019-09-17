@@ -5,6 +5,6 @@ import retrofit2.http.GET
 
 interface ApiService {
 
-    @GET("http://mock.api/something")
+    @GET("api/something")
     fun getSomething(): Single<SomeThing>
 }

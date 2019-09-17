@@ -1,7 +1,7 @@
 package com.miller.mockretrofitinterceptor;
 
 import okhttp3.*
-import sun.misc.IOUtils
+import java.io.InputStream
 import java.net.URI
 
 @ExperimentalStdlibApi
@@ -18,9 +18,10 @@ class MockInterceptor(
         val request = chain.request()
         val filePath =
             getFilePath(request.url().uri(), getFileName(request.method(), request.url()))
+        var inputStream: InputStream? = null
         return try {
-            val inputStream = resourceHelper.openFile(filePath)
-            val byteArray = IOUtils.readFully(inputStream, Integer.MAX_VALUE, false)
+            inputStream = resourceHelper.openFile(filePath)
+            val byteArray = inputStream.readBytes()
             Response.Builder()
                 .code(200)
                 .body(ResponseBody.create(MediaType.parse(TYPE_APP_JSON), byteArray))
@@ -38,6 +39,8 @@ class MockInterceptor(
                 .protocol(Protocol.HTTP_1_0)
                 .addHeader("content-type", TYPE_APP_JSON)
                 .build()
+        } finally {
+            inputStream?.close()
         }
     }
 
